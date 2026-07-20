@@ -1,0 +1,180 @@
+CO1 ASSEMENT TOOL;-1
+CSA 0406;-OPERATING SYSTEMS
+NAME-L.ASIF ALI KHAN 
+REG NO:-192521009
+SLOT:-A
+
+Question 1 
+(a) Identify the type of Operating System suitable for this environment 
+A Multi-user Operating System is suitable for this environment.
+Justification:
+It allows multiple users to access the same computer system simultaneously.
+Each user can execute programs independently without affecting others.
+It provides resource sharing (CPU, memory, storage) efficiently.
+Linux is a multi-user operating system that supports process scheduling, security, and user management.
+(b) State any two responsibilities of the kernel in managing multiple user processes. 
+Any two responsibilities are:
+Process Scheduling – Allocates CPU time among multiple processes.
+Memory Management – Allocates and deallocates memory for processes.
+Other acceptable answers:
+Process creation and termination
+Inter-process communication (IPC)
+Device management
+Security and protection
+(c) C-based system call sequence to create a child process and display Process IDs. 
+#include <stdio.h>
+#include <unistd.h>
+int main() {
+    pid_t pid;
+
+   pid = fork();
+
+    if (pid == 0) {
+        printf("Child Process ID: %d\n", getpid());
+        printf("Parent Process ID: %d\n", getppid());
+    } else {
+        printf("Parent Process ID: %d\n", getpid());
+        printf("Child Process ID: %d\n", pid);
+    }
+
+    return 0;
+}
+Question 2 
+(a) List the system calls required for file creation, writing, reading, and closing. 
+Operation	System Call
+File creation	creat() or open()
+Writing	write()
+Reading	read()
+Closing	close()
+(b) Explain the purpose of any two file management system calls
+
+1. open()
+
+Opens an existing file or creates a new file.
+Returns a file descriptor used for future operations.
+2. write()
+Writes data from memory to a file.
+Returns the number of bytes written.
+(c) C-based system call sequence to create a file, write a student name, and close it. 
+#include <fcntl.h>
+#include <unistd.h>
+int main() {
+    int fd;
+
+    fd = creat("student.txt", 0644);
+
+    write(fd, "John\n", 5);
+
+    close(fd);
+
+    return 0;
+}
+Question 3 
+(a) List the system calls required to copy one file to another. 
+Required system calls:
+open()
+read()
+write()
+close()
+(b) Explain the purpose of any two system calls.)
+read()
+Reads data from a file into memory.
+write()
+Writes data from memory into another file.
+(c) C-based system call sequence to copy one file to another.
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int source, destination;
+    char buffer[100];
+    int bytes;
+
+    source = open("input.txt", O_RDONLY);
+    destination = creat("output.txt", 0644);
+
+    while ((bytes = read(source, buffer, sizeof(buffer))) > 0) {
+        write(destination, buffer, bytes);
+    }
+
+    close(source);
+    close(destination);
+
+    return 0;
+}
+Question 4 (10 Marks)
+(a) State the purpose of fork() and exec() system calls.
+
+fork()
+
+Creates a new child process.
+The child is a copy of the parent process.
+
+exec()
+
+Replaces the current process with a new program.
+The process ID remains the same.
+(b) Explain the role of the wait() system call. 
+wait() makes the parent process wait until the child process finishes execution.
+It prevents zombie processes and ensures proper synchronization.
+(c) System call sequence using fork(), exec(), and wait(). (4 Marks)
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+    pid_t pid;
+
+    pid = fork();
+
+    if (pid == 0) {
+        execl("/bin/ls", "ls", NULL);
+    } else {
+        wait(NULL);
+        printf("Child process completed.\n");
+    }
+
+    return 0;
+}
+Question 5 (10 Marks)
+(a) Explain the importance of file management in an operating system. 
+
+File management is important because it:
+
+Organizes files efficiently.
+Stores and retrieves data.
+Protects files using permissions.
+Manages disk space effectively.
+Allows users to share files securely.
+(b) State the purpose of open() and close() system calls
+
+open()
+
+Opens an existing file or creates a new file.
+Returns a file descriptor.
+
+close()
+
+Closes an opened file.
+Releases the associated system resources.
+(c) C-based system call sequence to open a file, read its contents, and close it. )
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h>
+
+int main() {
+    int fd;
+    char buffer[100];
+    int bytes;
+
+    fd = open("student.txt", O_RDONLY);
+
+    bytes = read(fd, buffer, sizeof(buffer) - 1);
+    buffer[bytes] = '\0';
+
+    printf("%s", buffer);
+
+    close(fd);
+
+    return 0;
+}
