@@ -1,0 +1,130 @@
+NAME;L.ASIF ALI KHAN
+REG NO;192521009
+1Q,
+#include <stdio.h>
+int main() {
+    int base, limit, logical, physical;
+    printf("Enter Base Register: ");
+    scanf("%d", &base);
+    printf("Enter Limit Register: ");
+    scanf("%d", &limit);
+    printf("Enter Logical Address: ");
+    scanf("%d", &logical);
+    if (logical >= 0 && logical < limit) {
+        physical = base + logical;
+        printf("\nValid Logical Address\n");
+        printf("Physical Address = %d\n", physical);
+    } else {
+        printf("\nInvalid Logical Address! Address exceeds limit.\n");
+    }
+    return 0;
+}
+OUTPUT;
+  Enter Base Register: 1000
+Enter Limit Register: 500
+Enter Logical Address: 250
+Valid Logical Address
+Physical Address = 1250
+2Q
+#include <stdio.h>
+int main() {
+    int pageTable[5], pageSize;
+    int page, offset, physical;
+    printf("Enter page size: ");
+    scanf("%d", &pageSize);
+    printf("Enter frame numbers for 5 pages:\n");
+    for (int i = 0; i < 5; i++) {
+        scanf("%d", &pageTable[i]);
+    }
+    printf("Enter page number: ");
+    scanf("%d", &page);
+    printf("Enter offset: ");
+    scanf("%d", &offset);
+    if (page < 5 && offset < pageSize) {
+        physical = pageTable[page] * pageSize + offset;
+        printf("Physical Address = %d", physical);
+    } else {
+        printf("Invalid Page Number or Offset");
+    }
+    return 0;
+}
+OUTPUT;
+Enter page size: 100
+Enter frame numbers for 5 pages:
+5
+2
+8
+1
+4
+Enter page number: 2
+Enter offset: 40
+Physical Address = 840
+3Q
+#include <stdio.h>
+int main() {
+    int pageTable[5], page, offset;
+    printf("Enter frame numbers for 5 pages:\n");
+    for(int i = 0; i < 5; i++)
+        scanf("%d", &pageTable[i]);
+    printf("Enter page number: ");
+    scanf("%d", &page);
+    printf("Enter offset: ");
+    scanf("%d", &offset);
+    if(page < 5)
+        printf("Physical Address = %d", pageTable[page] * 100 + offset);
+    else
+        printf("Invalid Page Number");
+    return 0;
+}
+OUTPUT;
+   Enter frame numbers for 5 pages:
+5
+2
+8
+1
+4
+Enter page number: 2
+Enter offset: 40
+4Q
+  #include <stdio.h>
+int main() {
+    int memoryTime, tlbTime;
+    float hitRatio, withoutTLB, withTLB;
+
+    printf("Enter Memory Access Time: ");
+    scanf("%d", &memoryTime);
+    printf("Enter TLB Access Time: ");
+    scanf("%d", &tlbTime);
+    printf("Enter TLB Hit Ratio (0 to 1): ");
+    scanf("%f", &hitRatio);
+    withoutTLB = 2 * memoryTime;
+    withTLB = hitRatio * (tlbTime + memoryTime) +
+              (1 - hitRatio) * (tlbTime + 2 * memoryTime);
+    printf("\nWithout TLB = %.2f ns", withoutTLB);
+    printf("\nWith TLB = %.2f ns", withTLB);
+    return 0;
+}
+OUTPUT:
+  Enter Memory Access Time: 100
+Enter TLB Access Time: 20
+Enter TLB Hit Ratio (0 to 1): 0.8
+5Q;
+ #include <stdio.h>
+int main() {
+    int base, limit, address;
+    printf("Enter Base Register: ");
+    scanf("%d", &base);
+    printf("Enter Limit Register: ");
+    scanf("%d", &limit);
+    printf("Enter Logical Address: ");
+    scanf("%d", &address);
+    if (address >= 0 && address < limit)
+        printf("Access Allowed\nPhysical Address = %d", base + address);
+    else
+        printf("Access Denied! Invalid Address");
+    return 0;
+}
+OUTPUT;
+  Enter Base Register: 1000
+Enter Limit Register: 500
+Enter Logical Address: 250
