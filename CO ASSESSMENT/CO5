@@ -1,0 +1,259 @@
+NAME;L.ASIF ALI KHAN 
+REG;192521009
+
+1Q;
+A Linux server has a total storage capacity of 50 GB. The system must store rapidly growing system logs, user files, and application data. If log files continuously grow, they may consume the entire disk and cause critical services to stop. Therefore, the storage must be divided efficiently and log growth must be controlled.
+Constraint Analysis
+The important constraints are:
+Total storage = 50 GB
+Log files must not exceed 10 GB
+System files must remain protected from user/application data.
+Critical services must continue running.
+Disk space must be monitored regularly.
+Log rotation must be configured.
+Proposed File System Layout
+Partition	Size	Purpose
+/	10 GB	Operating system and applications
+/var	10 GB	Logs, cache and variable data
+/home	15 GB	User files
+/opt	10 GB	Application data
+Swap	2 GB	Memory support
+Free/Reserved	3 GB	Emergency disk space
+Total	50 GB	
+The /var partition is separated from / because system logs are normally stored under /var/log. This prevents rapidly growing logs from filling the root partition.
+Log Rotation
+logrotate can be used to control log size.
+Example configuration:
+sudo nano /etc/logrotate.d/mylogs
+Configuration:
+/var/log/*.log {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+    size 100M
+}
+This rotates logs regularly, compresses old logs, and prevents unnecessary disk usage.
+Disk Monitoring
+df -h
+du -sh /var/log/*
+A simple monitoring command:
+df -h /var | awk 'NR==2 {print $5}'
+If the usage becomes high, old logs can be compressed or removed according to the retention policy.
+Solution
+The recommended layout separates operating system files, logs, user data, and application data. /var is limited to 10 GB, satisfying the requirement that logs must not exceed 10 GB.
+A reserved 3 GB space is also maintained for emergencies. Log rotation, compression, and disk monitoring prevent storage exhaustion.
+Justification
+This design improves system stability because log growth cannot consume the complete root filesystem. Separating partitions provides better fault isolation, while logrotate automatically controls log growth. Reserved free space ensures that critical services have sufficient storage for temporary and emergency operations.
+2Q;
+The Linux system experiences frequent context switching because of heavy CPU workloads. Context switching introduces overhead because the CPU must save the current process state and load another process state. Real-time processing requires predictable response time.
+Hardware upgrades are not possible, so kernel-level optimization must be used.
+Constraint Analysis
+The major constraints are:
+Hardware cannot be upgraded.
+CPU workload is high.
+Context switching must be reduced.
+Real-time processing must be supported.
+Critical processes must receive CPU time quickly.
+Scheduler Tuning
+Linux provides scheduler-related tools and parameters.
+CPU scheduling information can be viewed using:
+top
+or:
+htop
+CPU affinity can be used to assign a process to specific CPU cores:
+taskset -cp 0,1 PID
+Process priority can be changed using:
+renice -n -5 -p PID
+For real-time tasks:
+chrt -f 50 ./realtime_program
+A real-time scheduling policy can reduce scheduling delays for important tasks.
+Kernel Parameters
+System performane can be checked using:
+sysctl -a | grep sched
+Kernel modules can also be managed without rebooting:
+lsmod
+Load a required module:
+sudo modprobe module_name
+Remove an unused module:
+sudo modprobe -r module_name
+Optimization Strategy
+The recommended approach is:
+Identify CPU-intensive processes.
+Assign important real-time processes appropriate CPU affinity.
+Use suitable scheduling priorities.
+Reduce unnecessary background processes.
+Load only required kernel modules.
+Monitor context switching and CPU usage.
+Avoid unnecessary scheduler overhead.
+Justification
+Scheduler tuning improves CPU utilization by ensuring that important real-time processes receive CPU time quickly. CPU affinity can reduce unnecessary movement of processes between CPU cores, which can reduce scheduling and cache overhead.
+Kernel modules allow required functionality to be added without rebuilding the complete kernel. Together, these techniques improve responsiveness without requiring hardware upgrades.
+3Q;
+The administrator must process 1 million log entries per day using only shell scripting. The script must complete within 2 minutes.
+Processing each line individually with expensive commands can be slow. Therefore, optimized Linux commands should process large amounts of data in batches.
+Constraint Analysis
+The requirements are:
+Input = 1 million log entries
+Only shell scripting is allowed.
+Maximum execution time = 2 minutes
+Processing should use efficient Linux commands.
+Unnecessary process creation must be avoided.
+Sample Input
+Example log file:
+INFO user1 login
+ERROR database failed
+INFO user2 login
+WARNING memory high
+ERROR connection failed
+INFO user3 logout
+For a large file:
+LOGFILE="server.log"
+Optimized Shell Script
+#!/bin/bash
+LOGFILE="server.log"
+echo "Processing log file..."
+START=$(date +%s)
+echo "Total lines:"
+wc -l < "$LOGFILE"
+echo "Error count:"
+grep -c "ERROR" "$LOGFILE"
+echo "Warning count:"
+grep -c "WARNING" "$LOGFILE"
+echo "Top error messages:"
+grep "ERROR" "$LOGFILE" | sort | uniq -c | sort -nr | head -10
+END=$(date +%s)
+echo "Processing time: $((END-START)) seconds"
+Performance Optimization
+Instead of using:
+while read line
+do
+done < server.log
+for every log entry, optimized commands such as grep, awk, sort, uniq, and wc process data efficiently.
+For example:
+awk '/ERROR/ {count++} END {print count}' server.log
+Multiple statistics can also be calculated in a single awk pass:
+awk '
+/ERROR/ {error++}
+/WARNING/ {warning++}
+/INFO/ {info++}
+END {
+    print "ERROR:", error
+    print "WARNING:", warning
+    print "INFO:", info
+}' server.log
+Why These Commands?
+Command	Purpose
+wc	Counts lines quickly
+grep	Searches matching log entries
+awk	Performs fast text processing
+sort	Sorts large datasets
+uniq	Removes/counts duplicate entries
+head	Limits output
+gzip	Compresses old logs
+Justification
+The main performance improvement comes from avoiding a shell loop that starts additional commands for every log line. Standard Linux utilities are optimized for bulk text processing and can process large files efficiently.
+Using a single awk pass for multiple statistics further reduces unnecessary file reading. Therefore, this approach is suitable for processing approximately 1 million log entries while targeting the required 2-minute limit, subject to the server's CPU, disk speed, and log format.
+4Q;
+A Linux server contains multiple background services. One faulty process is consuming approximately 90% CPU. The server cannot be restarted because critical services must remain available.
+The faulty process must therefore be identified, monitored, and controlled without affecting important services.
+Constraint Analysis
+The important constraints are:
+CPU usage is approximately 90%.
+System restart is not allowed.
+Critical services must continue running.
+The faulty process must be controlled safely.
+The process should be monitored before taking action.
+Identify the Process
+Use
+top
+or:
+ps aux --sort=-%cpu | head
+Example output:
+USER       PID  %CPU  COMMAND
+user      2450  90.0  faulty_app
+root       800   5.0  system_service
+The PID of the faulty process is:
+2450
+Monitor the Process
+top -p 2450
+or:
+ps -p 2450 -o pid,ppid,stat,%cpu,%mem,cmd
+Reduce CPU Priority
+If the process is not immediately dangerous:
+renice 10 -p 2450
+This gives the process lower CPU scheduling priority.
+CPU affinity can also be restricted:
+taskset -cp 2 2450
+This limits the process to a particular CPU core.
+Stop the Process Safely
+First attempt:
+kill 2450
+Check whether it stopped:
+ps -p 2450
+If it does not terminate, a stronger signal can be used:
+kill -9 2450
+kill -9 should be used only as a last resort because it does not allow the application to perform cleanup.
+Service-Based Process
+If the faulty process belongs to a systemd service:
+systemctl status service_name
+Then:
+sudo systemctl restart service_name
+or, if necessary:
+sudo systemctl stop service_name
+Justification
+The process should first be identified and monitored before taking action. Lowering its priority or restricting CPU affinity can reduce its impact while maintaining service availability.
+If the process is confirmed to be faulty, terminating only that process avoids rebooting the complete server. This approach protects critical services and restores CPU availability.
+5Q;
+A physical server has 16 GB RAM and must host 5 virtual machines. Each VM requires at least 2 GB, while the host operating system requires 4 GB.
+Constraint Analysis
+Required RAM:
+5 VMs × 2 GB = 10 GB
+Host requirement:
+4 GB
+Total minimum:
+10 GB + 4 GB = 14 GB
+Available:
+16 GB
+Remaining:
+16 GB - 14 GB = 2 GB
+Therefore, the requirements can be satisfied.
+Basic Allocation
+Component	RAM
+Host OS	4 GB
+VM1	2 GB
+VM2	2 GB
+VM3	2 GB
+VM4	2 GB
+VM5	2 GB
+Reserved/Buffer	2 GB
+Total	16 GB
+Recommended Strategy
+The safest allocation is:
+Host OS = 4 GB
+VM1 = 2 GB
+VM2 = 2 GB
+VM3 = 2 GB
+VM4 = 2 GB
+VM5 = 2 GB
+Reserved = 2 GB
+The 2 GB reserve should not be permanently assigned to the VMs. It can provide additional flexibility for host operations and temporary workload increases.
+Virtualization Concepts
+1. Memory Reservation
+Each VM should have a minimum reservation of 2 GB so that it can operate reliably.
+2. Memory Ballooning
+Memory ballooning can allow the hypervisor to reclaim unused memory from VMs when the host needs additional RAM.
+3. Dynamic Memory
+If supported by the virtualization platform, VM memory can be dynamically adjusted based on workload.
+4. Monitoring
+Memory usage should be continuously monitored:
+free -h
+For virtualization environments, the administrator can also monitor VM memory through the hypervisor management tools.
+Justification
+The minimum VM requirement is:
+5 × 2 GB = 10 GB
+Adding the host requirement:
+10 GB + 4 GB = 14 GB
+Since the server has 16 GB, all five VMs can run with their minimum requirement while leaving 2 GB available as a safety buffer.
+This allocation satisfies all constraints and prevents the host from becoming memory-starved. Dynamic memory and ballooning can further improve resource utilization when workloads change.
