@@ -1,0 +1,27 @@
+#include <stdio.h>
+
+int fork[5] = {0,0,0,0,0};
+
+int main()
+{
+    int i, left, right;
+
+    for(i=0; i<5; i++)
+    {
+        left = i;
+        right = (i+1) % 5;
+
+        if(fork[left] == 0 && fork[right] == 0)
+        {
+            fork[left] = fork[right] = 1;
+            printf("Philosopher %d is Eating\n", i+1);
+
+            fork[left] = fork[right] = 0;
+            printf("Philosopher %d is Thinking\n", i+1);
+        }
+        else
+            printf("Philosopher %d is Waiting\n", i+1);
+    }
+
+    return 0;
+}
