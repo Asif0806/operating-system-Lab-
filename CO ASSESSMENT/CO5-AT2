@@ -1,0 +1,73 @@
+NAME ; L.ASIF ALI KHAN 
+REG;192521009
+ASSESSEMENT;CO5-AT2
+1Q;
+BEGIN
+SET limit = 80%
+GET disk usage
+IF disk usage > 80% THEN
+    FIND log files
+    SORT log files by size
+    FOR each log file
+        DELETE or COMPRESS the file
+        CHECK disk usage
+        IF disk usage <= 80% THEN
+            STOP
+        ENDIF
+    ENDFOR
+ENDIF
+END
+2Q;
+BEGIN
+INPUT process_list
+SORT processes by priority
+WHILE process_list is NOT EMPTY DO
+    SELECT process with highest priority
+    GIVE CPU to the process
+    EXECUTE the process
+    IF process is NOT completed THEN
+        LOWER its priority
+        ADD process back to the list
+    ENDIF
+ENDWHILE
+3Q;
+BEGIN
+SET total_RAM = 16 GB
+SET host_RAM = 4 GB
+SET available_RAM = total_RAM - host_RAM
+SET min_RAM = 2 GB
+INPUT number_of_VMs
+FOR i = 1 TO number_of_VMs DO
+    IF available_RAM >= min_RAM THEN
+        ALLOCATE 2 GB to VM[i]
+        available_RAM = available_RAM - 2 GB
+    ELSE
+        PRINT "Insufficient memory"
+    ENDIF
+ENDFOR
+PRINT "RAM allocation completed"
+END
+4Q;
+BEGIN
+INPUT performance, budget, hardware_access
+IF performance = HIGH AND hardware_access = TRUE THEN
+    SELECT Type_1_Hypervisor
+ELSE IF budget = LOW THEN
+    SELECT Type_2_Hypervisor
+ELSE
+    SELECT Type_1_Hypervisor
+ENDIF
+PRINT selected_hypervisor
+END
+END
+5Q;
+BEGIN
+INPUT application_list
+FOR each application DO
+    CREATE resource group
+    SET CPU limit
+    SET memory limit
+    ASSIGN application to resource group
+ENDFOR
+PRINT "Resource limits applied"
+END
