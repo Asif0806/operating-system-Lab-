@@ -1,0 +1,17 @@
+#include <stdio.h>
+int main() {
+    int r, w, x;
+    printf("Enter Read permission (1/0): ");
+    scanf("%d", &r);
+    printf("Enter Write permission (1/0): ");
+    scanf("%d", &w);
+    printf("Enter Execute permission (1/0): ");
+    scanf("%d", &x);
+    printf("\nFile Permissions: ");
+    if(r) printf("Read ");
+    if(w) printf("Write ");
+    if(x) printf("Execute ");
+    if(!r && !w && !x)
+        printf("No Permission");
+    return 0;
+}
